@@ -13,7 +13,6 @@
     }
   ],
   "env": {
-    "SECRET_KEY": "@luapaste_secret_key",
     "HTTPS": "true"
   }
 }
