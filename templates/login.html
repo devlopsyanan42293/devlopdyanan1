@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — PasteApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(17, 17, 24, 0.8);
+      --surface-solid: #111118;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --error: #ef4444;
+      --success: #22c55e;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(6,182,212,0.1) 0%, transparent 50%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgPulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* animated grid */
+    .grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      animation: gridDrift 20s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(48px); }
+    }
+
+    /* floating particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatParticle 15s ease-in-out infinite;
+    }
+
+    @keyframes floatParticle {
+      0% {
+        transform: translateY(100vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.5;
+      }
+      90% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-20vh) translateX(100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* glowing blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .3;
+      pointer-events: none;
+      animation: blobFloat 10s ease-in-out infinite alternate;
+    }
+    .blob1 { 
+      width: 500px; 
+      height: 500px; 
+      background: var(--accent);  
+      top: -150px; 
+      left: -150px; 
+      animation-delay: 0s;
+    }
+    .blob2 { 
+      width: 400px; 
+      height: 400px; 
+      background: var(--accent2); 
+      bottom: -100px; 
+      right: -100px; 
+      animation-delay: -3s;
+    }
+    .blob3 {
+      width: 300px;
+      height: 300px;
+      background: #ec4899;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(100px);
+      opacity: 0.15;
+      animation: blobFloat 12s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes blobFloat {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px, 40px) scale(1.1); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 28px;
+      padding: 52px 48px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.1);
+      animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(40px) scale(0.96);
+        filter: blur(10px);
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+      animation: slideIn 0.5s ease-out 0.1s both;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2));
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text);
+      animation: fadeUp 0.5s ease-out 0.2s both;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 40px;
+      animation: fadeUp 0.5s ease-out 0.3s both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .field {
+      margin-bottom: 24px;
+      animation: fadeUp 0.5s ease-out 0.4s both;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      transition: color 0.3s ease;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
+      background: rgba(10,10,15,0.8);
+    }
+
+    input:hover {
+      border-color: rgba(124,58,237,0.5);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 18px;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+
+    .toggle-password:hover {
+      color: var(--accent);
+    }
+
+    .error-msg {
+      display: none;
+      background: rgba(239,68,68,0.12);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--error);
+      font-size: 13px;
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 24px;
+      animation: fadeUp 0.3s ease-out;
+    }
+
+    .error-msg.show { 
+      display: block; 
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+      20%, 40%, 60%, 80% { transform: translateX(2px); }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent), #5b21b6);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease-out 0.5s both;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(124,58,237,0.3);
+    }
+    
+    .btn:active { 
+      transform: translateY(0);
+    }
+
+    .btn.loading { 
+      pointer-events: none; 
+      opacity: 0.7;
+    }
+
+    .btn.loading::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 50%;
+      left: 20px;
+      margin-top: -9px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: 'Space Mono', monospace;
+      animation: fadeUp 0.5s ease-out 0.6s both;
+    }
+
+    /* Loading skeleton */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="particles" id="particles"></div>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">📋</div>
+      <span class="logo-text">PasteApp</span>
+    </div>
+
+    <h1>Selamat Datang</h1>
+    <p class="subtitle">// masuk untuk melanjutkan</p>
+
+    <div class="error-msg" id="errorMsg">❌ Username atau password salah.</div>
+
+    <div class="field">
+      <label for="username">Username</label>
+      <div class="input-wrapper">
+        <input type="text" id="username" placeholder="masukkan username" autocomplete="username" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+      </div>
+    </div>
+
+    <button class="btn" id="loginBtn" onclick="doLogin()">Login</button>
+
+    <p class="footer-note">🔒 sesi tersimpan di browser</p>
+  </div>
+
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const size = Math.random() * 4 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Toggle password visibility
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggle = document.querySelector('.toggle-password');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggle.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggle.textContent = '👁️';
+      }
+    }
+
+    // Press Enter to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    let countdownInterval = null;
+
+    async function doLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('errorMsg');
+
+      if (!username || !password) {
+        showError('Username dan password tidak boleh kosong.');
+        animateInput();
+        return;
+      }
+
+      if (username.length > 64 || password.length > 256) {
+        showError('Input terlalu panjang.');
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.textContent = 'Memverifikasi…';
+      err.classList.remove('show');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          sessionStorage.setItem('auth_user', data.username);
+          if (data.csrf_token) sessionStorage.setItem('csrf_token', data.csrf_token);
+          btn.textContent = '✓ Masuk…';
+          
+          // Add success animation
+          btn.style.background = 'linear-gradient(135deg, var(--success), #16a34a)';
+          setTimeout(() => {
+            const next = new URLSearchParams(location.search).get('next') || '/';
+            window.location.href = next;
+          }, 300);
+          return;
+        }
+
+        // Rate limited / lockout
+        if (res.status === 429 && data.retry_after) {
+          startLockoutCountdown(data.retry_after);
+          return;
+        }
+
+        showError(data.error || 'Username atau password salah.');
+        animateInput();
+      } catch {
+        showError('Gagal terhubung ke server.');
+      }
+
+      btn.classList.remove('loading');
+      btn.textContent = 'Login';
+    }
+
+    function animateInput() {
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.style.animation = 'shake 0.4s ease';
+        setTimeout(() => {
+          input.style.animation = '';
+        }, 400);
+      });
+    }
+
+    function startLockoutCountdown(seconds) {
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      let remaining = seconds;
+      const update = () => {
+        btn.textContent = `🔒 Tunggu ${remaining}s…`;
+        showError(`Terlalu banyak percobaan. Coba lagi dalam ${remaining} detik.`);
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          btn.classList.remove('loading');
+          btn.textContent = 'Login';
+          document.getElementById('errorMsg').classList.remove('show');
+        }
+        remaining--;
+      };
+      update();
+      countdownInterval = setInterval(update, 1000);
+    }
+
+    function showError(msg) {
+      const err = document.getElementById('errorMsg');
+      err.textContent = '❌ ' + msg;
+      err.classList.remove('show');
+      void err.offsetWidth; // Force reflow
+      err.classList.add('show');
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        if (err.classList.contains('show')) {
+          err.classList.remove('show');
+        }
+      }, 5000);
+    }
+
+    // Focus on username input on load
+    window.addEventListener('load', () => {
+      createParticles();
+      document.getElementById('username').focus();
+      
+      // Add floating label effect
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          const label = input.closest('.field').querySelector('label');
+          label.style.color = 'var(--accent)';
+        });
+        input.addEventListener('blur', () => {
+          const label = input.closest('.field').querySelector('label');
+          label.style.color = 'var(--muted)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
